@@ -38,7 +38,7 @@ class LazyLoad extends Component{
     }
 
     shouldComponentUpdate(){    
-        
+        return this.props.isVis
     }
 
     loadCurrentNode(){
