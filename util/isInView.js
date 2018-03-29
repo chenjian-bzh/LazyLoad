@@ -1,8 +1,16 @@
 
-function isInView(element,offset){
+function isInView(element,container,offset){
     let position = getElementPostion(element)
-        height = element.clientHeight,
-        width = element.clientWidht;
+        height = element.offsetHeight,
+        width = element.offsetWidth,
+        containerPos = {};
+    if(container==null || container == window){
+        containerPos = {
+            top:window.pageYOffset,
+            left:window.pageXOffset
+        }
+    }
+    
         
 }
 
@@ -14,4 +22,4 @@ function getElementPostion(element){
     }
 }
 
-export default isInView
+export default isInView 
