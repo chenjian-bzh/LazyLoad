@@ -1,7 +1,7 @@
-function debound(fn,timems){
+function debounce(fn,timems){
     return function(){
 
     }
 }
 
-export default debound
+export default debounce
