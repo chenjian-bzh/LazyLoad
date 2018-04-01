@@ -6,11 +6,11 @@ import debounce from './util/debounce'
 import throttle from './util/throttle'
 import getScrollNode from './util/getScrollNode'
 import isInView from './util/isInView'
-
+ 
 class LazyLoad extends Component{
     constructor(props){
         this.state = {
-            isVisible:false
+            isVisible:false 
         }
     }
 
