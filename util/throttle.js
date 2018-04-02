@@ -1,10 +1,18 @@
-function throttle(fn,timems,threshold){
+function throttle(fn,throttle){
     let timeout = null 
     let lastfire  = new Date()
     return function(){
-        if((lastfire - new Date())>timems){
-
+        let context = this,
+            args = arguments;
+        if((lastfire - new Date())>throttle){
+            fn.apply(context,args)
+            lastfire =  new Date()
         }
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+            fn.apply(context,args)
+            lastfire = new Date()
+        }, throttle); 
     }
 }
 

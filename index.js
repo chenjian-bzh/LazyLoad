@@ -1,7 +1,7 @@
 import React , {Component,Children} from 'react'
-import {findDomNode} from 'react-dom'
+import {findDOMNode} from 'react-dom'
 import PropTypes from 'prop-types'
-import cs from 'classname'
+import cs from 'classnames'
 import debounce from './util/debounce'
 import throttle from './util/throttle'
 import getScrollNode from './util/getScrollNode'
@@ -9,40 +9,55 @@ import isInView from './util/isInView'
  
 class LazyLoad extends Component{
     constructor(props){
+        super(props)
+        this.loadCurrentNode = this.loadCurrentNode.bind(this)
+        this.getOffset = this.getOffset.bind(this)
+        this.getEventHandler = this.getEventHandler.bind(this)
+        //对handler进行包装
+        this.loadCurrentNode = this.getEventHandler(props)
         this.state = {
             isVisible:false 
         }
     }
 
-    getEventHandler(){
-        let debounce = this.props.debounce,
-            throttle = this.props.throttle;
-        if(debounce){
-            return debounce(this.loadCurrentNode,throttle)
-        }else{
-            return throttle(this.loadCurrentNode,throttle)
-        }
-    }
-
     componentDidMount(){
-        let scrollNode = getScrollNode(findDomNode(this))
-        loadCurrentNode()
-        document.body.addEventListener("resize",this.getEventHandler())
-        scrollNode.addEventListener("scroll",this.getEventHandler())
+        this._mounted = true
+        let dom = findDOMNode(this)
+        let scrollNode = getScrollNode(dom)
+        this.loadCurrentNode()
+        document.body.addEventListener("resize",this.loadCurrentNode)
+        scrollNode.addEventListener("scroll",this.loadCurrentNode)
     }
 
     componentWillUnmount(){ 
-        let scrollNode = getScrollNode(findDomNode(this))
-        document.body.removeEventListener("resize")
-        scrollNode.removeEventListener("scroll")
+        this._mounted = false
+        let scrollNode = getScrollNode(findDOMNode(this))
+        document.body.removeEventListener("resize",this.loadCurrentNode)
+        scrollNode.removeEventListener("scroll",this.loadCurrentNode)
     }
 
-    shouldComponentUpdate(){    
-        return this.props.isVis
+    shouldComponentUpdate(nextprops,nextstate){    
+        if(nextstate.isVisible === this.state.isVisible){
+            return false
+        } 
+        return true
+    }
+
+    getEventHandler(props){
+        if(props.debounce){
+            return debounce(this.loadCurrentNode,props.throttle)
+        }else{
+            return throttle(this.loadCurrentNode,props.throttle)
+        }
     }
 
     loadCurrentNode(){
-        if(isInView(findDomNode(this),getOffset())){
+        if(!this._mounted){
+            return 
+        }
+        let dom = findDOMNode(this),
+            container = getScrollNode(dom);
+        if(isInView(dom,container,this.getOffset())){
             this.setState({isVisible:true})
         }
     }
@@ -54,7 +69,7 @@ class LazyLoad extends Component{
             _offsetTop = offsetTop || offsetVertical,
             _offsetBottom = offsetTop || offsetVertical,
             _offsetLeft = offsetLeft || offsetHorizontal,
-            _offsetRight = offsetRight || offsetHorizontal,
+            _offsetRight = offsetRight || offsetHorizontal;
         return {
             top:_offsetTop,
             bottom:_offsetBottom,
@@ -65,9 +80,20 @@ class LazyLoad extends Component{
 
     render(){
         let {isVisible} = this.state
-        return <div className={cs(isVisible?'isNotVisible':'')}>
-                    {isVisible?this.props.children : ''}
-               </div>
+        let {height,width} = this.props
+        let style = {}
+        if(height && width){
+            style = Object.assign(style,{height:height},{width:width})
+        }else if(height){
+            style = Object.assign(style,{height:height},{width:"100%"})
+        }else if(width){
+
+        }else{
+
+        }
+        return (<div style={style} className={cs(isVisible?'isVisible':'isNotVisible')}>
+                        {isVisible?this.props.children : ''}
+                </div>)
     }
 }
 
@@ -94,3 +120,5 @@ LazyLoad.defaultProps = {
     offsetLeft:0,
     offsetRight:0
 }
+
+export default LazyLoad

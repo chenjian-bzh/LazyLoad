@@ -5,12 +5,13 @@ function getOverFlowStyle(element){
 
 function getScrollNode(node){
     let parent = node
-    let overflow = getOverFlowStyle(parent)
+    let overflow = null
     while(parent){
+        overflow = getOverFlowStyle(parent)
         if(overflow === 'scroll' || overflow === 'auto'){
             return parent
         }
-        parent = node.parentNode
+        parent = parent.parentNode
     }
     return parent
 }
