@@ -37,7 +37,7 @@ class LazyLoad extends Component{
     }
 
     shouldComponentUpdate(nextprops,nextstate){    
-        if(nextstate.isVisible === this.state.isVisible){
+        if(nextstate.isVisible === this.state.isVisible && nextprops.height === this.props.height && nextprops.width === this.props.width){
             return false
         } 
         return true
@@ -56,9 +56,14 @@ class LazyLoad extends Component{
             return 
         }
         let dom = findDOMNode(this),
-            container = getScrollNode(dom);
+            container = getScrollNode(dom),
+            callback = this.props.callback
         if(isInView(dom,container,this.getOffset())){
-            this.setState({isVisible:true})
+            this.setState({isVisible:true},()=>{
+                if(callback){
+                    callback.apply(this,[])
+                }
+            })
         }
     }
 
